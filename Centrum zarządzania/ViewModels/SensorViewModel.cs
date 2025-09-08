@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Centrum_zarządzania.Models;
 
 namespace Centrum_zarządzania.ViewModels
 {
@@ -20,9 +19,15 @@ namespace Centrum_zarządzania.ViewModels
             _maxValue = sensor.maxValue;
         }
 
-        private string? _description;
-        private double _value = 0;
-        private List<ThresholdData> _thresholdData = new List<ThresholdData>();
-        private double _minValue = 0, _maxValue = 1;
+        private string? _description { get; set; }
+        private double _value { get; set; } = 0;
+        private List<ThresholdData> _thresholdData { get; set; } = new List<ThresholdData>();
+        private double _minValue { get; set; } = 0;
+        private double _maxValue { get; set; } = 1;
+
+        public double Ratio()
+        {
+            return _value - _minValue / (_maxValue - _minValue);
+        }
     }
 }

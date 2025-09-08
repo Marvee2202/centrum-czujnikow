@@ -18,7 +18,19 @@
 		    <Button Margin="10" Padding="5" CornerRadius="5" Background="#127770" HorizontalAlignment="Right" FontSize="22" VerticalAlignment="Top">+</Button>
 		</Grid>
 		<ScrollViewer>
-			ItemsControl 
+			<ItemsControl ItemsSource="{Binding SensorList}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+					<Border Margin="5" Padding="10" CornerRadius="5" BorderBrush="Azure" BorderThickness="2">
+						<Grid ColumnDefinitions="6*,1*,3*" ShowGridLines="False" VerticalAlignment="Stretch">
+							<TextBlock Text="{Binding description}" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"></TextBlock>
+							<TextBlock Grid.Column="1" Text="{Binding value}" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"></TextBlock>
+							<TextBlock Grid.Column="2" Text="OK" Foreground="White" HorizontalAlignment="Right"></TextBlock>
+						</Grid>
+					</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl> 
 		</ScrollViewer>
 	</StackPanel>
 
