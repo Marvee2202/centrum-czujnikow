@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,26 +25,53 @@ namespace Centrum_zarządzania.ViewModels
         public bool triggersBelow = false;
     }
 
-    public class Sensor
+    public class Sensor : INotifyPropertyChanged
     {
         public Sensor() { }
 
         public Sensor(string desc, double min, double max)
         {
-            description = desc;
-            minValue = min;
-            maxValue = max;
+            _description = desc;
+            _minValue = min;
+            _maxValue = max;
         }
 
         public int id;
-        public string? description { get; set; } = "czujnik";
-        public double value { get; set; } = 0;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private string? _description { get; set; } = "czujnik";
+
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                _description = value;
+                OnPropertyChanged(nameof(Description));
+            }
+        }
+        private double _value { get; set; } = 0;
+        public double Value
+        {
+            get => _value;
+            set
+            {
+                _value = value;
+                OnPropertyChanged(nameof(Value));
+            }
+        }
         public List<ThresholdData> thresholdData { get; set; } = new List<ThresholdData>();
-        public double minValue { get; set; } = 0;
-        public double maxValue { get; set; } = 1;
+        public double _minValue { get; set; } = 0;
+        public double _maxValue { get; set; } = 1;
 
         public double Ratio() {
-            return value - minValue / (maxValue - minValue);
+            return _value - _minValue / (_maxValue - _minValue);
         }
     }
 }

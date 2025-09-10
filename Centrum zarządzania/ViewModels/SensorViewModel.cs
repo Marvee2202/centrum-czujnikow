@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace Centrum_zarządzania.ViewModels
 {
-    public class SensorViewModel: ViewModelBase
+    public abstract class SensorViewModel: ViewModelBase
     {
         public SensorViewModel() { }
 
         public SensorViewModel(Sensor sensor)
         {
-            _description = sensor.description;
-            _value = sensor.value;
+            _description = sensor.Description;
+            _value = sensor.Value;
             _thresholdData = sensor.thresholdData;
-            _minValue = sensor.minValue;
-            _maxValue = sensor.maxValue;
+            _minValue = sensor._minValue;
+            _maxValue = sensor._maxValue;
         }
 
         private string? _description { get; set; }
@@ -24,6 +24,10 @@ namespace Centrum_zarządzania.ViewModels
         private List<ThresholdData> _thresholdData { get; set; } = new List<ThresholdData>();
         private double _minValue { get; set; } = 0;
         private double _maxValue { get; set; } = 1;
+
+        public double Value { get => _value; set { _value = Value; } }
+
+        public abstract void Update();
 
         public double Ratio()
         {
