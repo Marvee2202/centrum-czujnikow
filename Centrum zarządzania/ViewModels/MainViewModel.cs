@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Centrum_zarządzania.Models;
 using Centrum_zarządzania.Services;
 
@@ -19,7 +20,7 @@ public class MainViewModel : ViewModelBase
     public List<LocalSensor> LocalSensors { get; set; } = new List<LocalSensor> {
         new LocalSensor("Temperatura", "sense\\temp.exe", -32, 100),
         new LocalSensor("Wilgotność", "sense\\higro.exe", 0, 100),
-        new LocalSensor("Odległość", "sense\\dist.exe", 0, 400)
+        new LocalSensor("Odległość", "sense\\dist.exe", 0, 400),
     };
 
     public List<Sensor> SensorList { get; set; } = new List<Sensor>
@@ -27,6 +28,11 @@ public class MainViewModel : ViewModelBase
         //new Sensor("Termometr", -32, 100),
         //new Sensor("Miernik wilgotności", 0, 100),
         //new Sensor("Czujnik odległości", 0, 400)
+    };
+
+    private readonly UserControl[] Pages =
+    {
+        new SensorSettingsView()
     };
 
     public MainViewModel()
