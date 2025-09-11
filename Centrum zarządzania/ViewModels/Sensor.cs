@@ -66,6 +66,7 @@ namespace Centrum_zarządzania.ViewModels
                 OnPropertyChanged(nameof(Value));
             }
         }
+
         public List<ThresholdData> thresholdData { get; set; } = new List<ThresholdData>();
         public double _minValue { get; set; } = 0;
         public double _maxValue { get; set; } = 1;

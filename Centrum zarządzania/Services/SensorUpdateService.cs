@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -14,9 +15,9 @@ namespace Centrum_zarządzania.Services
     {
         private CancellationTokenSource _cts;
 
-        public List<LocalSensor> sensorList;
+        public ObservableCollection<LocalSensor> sensorList;
 
-        public SensorUpdateService(List<LocalSensor> sensors) { 
+        public SensorUpdateService(ObservableCollection<LocalSensor> sensors) { 
             _cts = new CancellationTokenSource();
 
             sensorList = sensors;

@@ -16,6 +16,11 @@ namespace Centrum_zarządzania.Models
 
         public string Path { get => _path; }
 
+        public void EditSensor()
+        {
+            App.Main.SwitchToSensorEdit(this);
+        }
+
         public void Update()
         {
             try
