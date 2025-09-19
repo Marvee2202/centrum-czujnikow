@@ -118,16 +118,25 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
             LocalSensors.Remove(_editedSensor);
             OnPropertyChanged("LocalSensors");
             Debug.WriteLine("Sensor deleted!");
+            App.SaveConfig();
         }
         ResetSettingsPage();
         ShowMain = true;
     }
 
-    public ObservableCollection<LocalSensor> LocalSensors { get; set; } = new ObservableCollection<LocalSensor> {
-        new LocalSensor("Temperatura", "temp.exe", -32, 100),
-        new LocalSensor("Wilgotność", "higro.exe", 0, 100),
-        new LocalSensor("Odległość", "dist.exe", 0, 400),
+    private ObservableCollection<LocalSensor> _localSensors = new ObservableCollection<LocalSensor>
+    {
+        //new LocalSensor("Temperatura", "temp.exe", -32, 100),
+        //new LocalSensor("Wilgotność", "higro.exe", 0, 100),
+        //new LocalSensor("Odległość", "dist.exe", 0, 400),
     };
+
+    public ObservableCollection<LocalSensor> LocalSensors { get => _localSensors; 
+        set 
+        { 
+            _localSensors = value; _updateHandler.sensorList = LocalSensors;
+        }
+    }
 
     public ObservableCollection<Sensor> SensorList { get; set; } = new ObservableCollection<Sensor>
     {
@@ -168,6 +177,7 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
             }
         }
         OnPropertyChanged("LocalSensors");
+        App.SaveConfig();
     }
 
     private void LoadSensor()
