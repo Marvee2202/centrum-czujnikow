@@ -26,11 +26,17 @@ namespace Centrum_zarządzania.Services
             {
                 while (!_cts.IsCancellationRequested)
                 {
-                    foreach (var sensor in sensorList)
+                    try
                     {
-                        sensor.Update();
+                        foreach (var sensor in sensorList)
+                        {
+                            Task.Factory.StartNew(async () => sensor.Update());
+                        }
+                        await Task.Delay(999);
                     }
-                    await Task.Delay(1000);
+                    catch (Exception ex)
+                    {
+                    }
                 }
             });
         }
