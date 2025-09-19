@@ -28,7 +28,6 @@ namespace Centrum_zarządzania.Services
                 {
                     foreach (var sensor in sensorList)
                     {
-                        Debug.WriteLine("Sensor Update");
                         sensor.Update();
                     }
                     await Task.Delay(1000);

@@ -12,9 +12,9 @@ namespace Centrum_zarządzania.Models
 {
     public class LocalSensor : Sensor
     {
-        private string _path;
+        private string _path = "";
 
-        public string Path { get => _path; }
+        public string Path { get => _path; set { _path = value; } }
 
         public void EditSensor()
         {
@@ -46,6 +46,11 @@ namespace Centrum_zarządzania.Models
         public LocalSensor(string desc, string path, double min, double max) : base(desc, min, max)
         {
             _path = path;
+        }
+
+        public LocalSensor() : base()
+        {
+
         }
     };
 }

@@ -86,32 +86,47 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
 
 
     private LocalSensor _editedSensor;
-    public LocalSensor EditedSensor { get =>  _editedSensor; }
+    public LocalSensor EditedSensor { get =>  _editedSensor; private set { _editedSensor = value;  OnPropertyChanged("EditedSensor");  } }
 
     public void SwitchToNewSensor()
     {
+        NewSensor = true;
+        ResetSettingsPage();
         ShowMain = false;
     }
 
     public void SwitchToSensorEdit(LocalSensor sensor)
     {
+        NewSensor = false;
+        EditedSensor = sensor;
+        LoadSensor();
+        Debug.WriteLine("Loaded" + sensor.Path);
         ShowMain = false;
     }
 
     public void SwitchToSensorList(bool saveChanges)
     {
+        if (saveChanges) SaveSettings();
+        ResetSettingsPage();
         ShowMain = true;
     }
 
     public void DeleteCurrent()
     {
+        if(!NewSensor)
+        {
+            LocalSensors.Remove(_editedSensor);
+            OnPropertyChanged("LocalSensors");
+            Debug.WriteLine("Sensor deleted!");
+        }
+        ResetSettingsPage();
         ShowMain = true;
     }
 
     public ObservableCollection<LocalSensor> LocalSensors { get; set; } = new ObservableCollection<LocalSensor> {
-        new LocalSensor("Temperatura", "sense\\temp.exe", -32, 100),
-        new LocalSensor("Wilgotność", "sense\\higro.exe", 0, 100),
-        new LocalSensor("Odległość", "sense\\dist.exe", 0, 400),
+        new LocalSensor("Temperatura", "temp.exe", -32, 100),
+        new LocalSensor("Wilgotność", "higro.exe", 0, 100),
+        new LocalSensor("Odległość", "dist.exe", 0, 400),
     };
 
     public ObservableCollection<Sensor> SensorList { get; set; } = new ObservableCollection<Sensor>
@@ -127,6 +142,40 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private void ResetSettingsPage()
+    {
+        EditedSensor = new LocalSensor();
+        LoadSensor();
+    }
+
+    private void SaveSettings()
+    {
+        if (NewSensor)
+        {
+            EditedSensor = new LocalSensor(DescriptionField, PathField, MinField, MaxField);
+            LocalSensors.Add(EditedSensor);
+            NewSensor = false;
+            Debug.WriteLine("Saved new sensor!");
+        }
+        else
+        {
+            {
+                EditedSensor.Description = DescriptionField;
+                EditedSensor.Path = PathField;
+                EditedSensor.MaxValue = MaxField;
+                EditedSensor.MinValue = MinField;
+                Debug.WriteLine("Sensor edit saved!");
+            }
+        }
+        OnPropertyChanged("LocalSensors");
+    }
+
+    private void LoadSensor()
+    {
+        DescriptionField = EditedSensor.Description; PathField = EditedSensor.Path;
+        MaxField = EditedSensor.MaxValue; MinField = EditedSensor.MinValue;
+    }
+
     public MainViewModel()
     {
 
@@ -137,4 +186,8 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
 
         _updateHandler = new SensorUpdateService(LocalSensors);
     }
+
+    private bool newSensor = false;
+
+    public bool NewSensor { get => newSensor; private set { newSensor = value; OnPropertyChanged("NewSensor"); } }
 }

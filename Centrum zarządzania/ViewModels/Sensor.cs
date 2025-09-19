@@ -32,8 +32,8 @@ namespace Centrum_zarządzania.ViewModels
         public Sensor(string desc, double min, double max)
         {
             _description = desc;
-            _minValue = min;
-            _maxValue = max;
+            MinValue = min;
+            MaxValue = max;
         }
 
         public int id;
@@ -68,11 +68,13 @@ namespace Centrum_zarządzania.ViewModels
         }
 
         public List<ThresholdData> thresholdData { get; set; } = new List<ThresholdData>();
-        public double _minValue { get; set; } = 0;
-        public double _maxValue { get; set; } = 1;
+        private double _minvalue = 0;
+        public double MinValue { get => _minvalue; set { _minvalue = value; OnPropertyChanged("MinValue"); } }
+        private double _maxvalue = 1;
+        public double MaxValue { get => _maxvalue; set { _maxvalue = value; OnPropertyChanged("MaxValue"); } }
 
         public double Ratio() {
-            return _value - _minValue / (_maxValue - _minValue);
+            return _value - MinValue / (MaxValue - MinValue);
         }
     }
 }
