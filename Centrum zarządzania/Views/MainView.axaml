@@ -47,15 +47,16 @@
 			<Button Margin="10" Padding="5" CornerRadius="5" Background="#127770" HorizontalAlignment="Right" FontSize="22" VerticalAlignment="Top" Command="{Binding SwitchToSensorList}" CommandParameter="true">Zapisz</Button>
 		</Grid>
 
-		<Grid ColumnDefinitions="auto, 1*, 1*, auto" RowDefinitions="1*, 1*, 1*" Margin="10">
+		<Grid ColumnDefinitions="auto, 1*, 1*" RowDefinitions="1*, 1*, 1*, 1*" Margin="10">
 			<TextBlock Grid.Column="0" Grid.Row="0" Text="Nazwa Czujnika" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"></TextBlock>
 			<TextBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding DescriptionField}"></TextBox>
 			<TextBlock Text="Ścieżka aplikacji" Grid.Column="0" Grid.Row="1" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"></TextBlock>
 			<TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding PathField}"></TextBox>
-			<Button Grid.Column="3" Grid.Row="1" Padding="5" CornerRadius="5" Background="#127770" HorizontalAlignment="Right" FontSize="12" VerticalAlignment="Top" Command="{Binding SwitchToSensorList}" CommandParameter="false">...</Button>
 			<TextBlock Grid.Column="0" Grid.Row="2" Text="Zakres odczytu (min - max)" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"></TextBlock>
 			<TextBox Grid.Column="1" Grid.Row="2" Text="{Binding MinField}"></TextBox>
 			<TextBox Grid.Column="2" Grid.Row="2" Text="{Binding MaxField}"></TextBox>
+			<TextBlock Grid.Column="0" Grid.Row="3" Text="Interwał[ms]" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"></TextBlock>
+			<TextBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Text="{Binding IntervalField}"></TextBox>
 		</Grid>
 
 		<Button IsVisible="{Binding !NewSensor}" Margin="10" Padding="5" CornerRadius="5" Background="#771210" HorizontalAlignment="Center" FontSize="22" VerticalAlignment="Top" Command="{Binding DeleteCurrent}">Usuń</Button>

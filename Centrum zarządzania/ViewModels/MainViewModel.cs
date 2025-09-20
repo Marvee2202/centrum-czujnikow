@@ -18,7 +18,7 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
 
     private Task UpdateTask;
 
-    private SensorUpdateService _updateHandler;
+    private SensorUpdater _updateHandler = new SensorUpdater();
 
     private bool _showMain = true;
     private bool _showDetails = false;
@@ -84,6 +84,14 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
+    private int _intervalField = 1000;
+    public int IntervalField { get => _intervalField;
+    set
+        {
+            _intervalField = value;
+            OnPropertyChanged(nameof(IntervalField));
+        }
+    }
 
     private LocalSensor _editedSensor;
     public LocalSensor EditedSensor { get =>  _editedSensor; private set { _editedSensor = value;  OnPropertyChanged("EditedSensor");  } }
@@ -116,12 +124,38 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         if(!NewSensor)
         {
             LocalSensors.Remove(_editedSensor);
+            _updateHandler.UnregisterSensor(_editedSensor);
             OnPropertyChanged("LocalSensors");
             Debug.WriteLine("Sensor deleted!");
             App.SaveConfig();
         }
         ResetSettingsPage();
         ShowMain = true;
+    }
+
+    private void SaveSettings()
+    {
+        if (NewSensor)
+        {
+            EditedSensor = new LocalSensor(DescriptionField, PathField, MinField, MaxField, IntervalField);
+            LocalSensors.Add(EditedSensor);
+            _updateHandler.RegisterSensor(_editedSensor);
+            NewSensor = false;
+            Debug.WriteLine("Saved new sensor!");
+        }
+        else
+        {
+            {
+                EditedSensor.Description = DescriptionField;
+                EditedSensor.Path = PathField;
+                EditedSensor.MaxValue = MaxField;
+                EditedSensor.MinValue = MinField;
+                EditedSensor.Interval = IntervalField;
+                Debug.WriteLine("Sensor edit saved!");
+            }
+        }
+        OnPropertyChanged("LocalSensors");
+        App.SaveConfig();
     }
 
     private ObservableCollection<LocalSensor> _localSensors = new ObservableCollection<LocalSensor>
@@ -134,15 +168,21 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
     public ObservableCollection<LocalSensor> LocalSensors { get => _localSensors; 
         set 
         { 
-            _localSensors = value; _updateHandler.sensorList = LocalSensors;
+            foreach(var item in _localSensors)
+            {
+                _updateHandler.UnregisterSensor(item);
+            }
+            _localSensors = value;
+            foreach(var item in _localSensors)
+            {
+                _updateHandler.RegisterSensor(item);
+            }
         }
     }
 
     public ObservableCollection<Sensor> SensorList { get; set; } = new ObservableCollection<Sensor>
     {
-        //new Sensor("Termometr", -32, 100),
-        //new Sensor("Miernik wilgotności", 0, 100),
-        //new Sensor("Czujnik odległości", 0, 400)
+
     };
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -157,33 +197,11 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         LoadSensor();
     }
 
-    private void SaveSettings()
-    {
-        if (NewSensor)
-        {
-            EditedSensor = new LocalSensor(DescriptionField, PathField, MinField, MaxField);
-            LocalSensors.Add(EditedSensor);
-            NewSensor = false;
-            Debug.WriteLine("Saved new sensor!");
-        }
-        else
-        {
-            {
-                EditedSensor.Description = DescriptionField;
-                EditedSensor.Path = PathField;
-                EditedSensor.MaxValue = MaxField;
-                EditedSensor.MinValue = MinField;
-                Debug.WriteLine("Sensor edit saved!");
-            }
-        }
-        OnPropertyChanged("LocalSensors");
-        App.SaveConfig();
-    }
-
     private void LoadSensor()
     {
         DescriptionField = EditedSensor.Description; PathField = EditedSensor.Path;
         MaxField = EditedSensor.MaxValue; MinField = EditedSensor.MinValue;
+        IntervalField = EditedSensor.Interval;
     }
 
     public MainViewModel()
@@ -193,8 +211,6 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         {
             SensorList.Add(sensor);
         }
-
-        _updateHandler = new SensorUpdateService(LocalSensors);
     }
 
     private bool newSensor = false;
