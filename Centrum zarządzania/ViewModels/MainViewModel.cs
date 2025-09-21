@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Centrum_zarządzania.Models;
 using Centrum_zarządzania.Services;
+using ReactiveUI;
 
 namespace Centrum_zarządzania.ViewModels;
 
@@ -22,6 +26,8 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
 
     private bool _showMain = true;
     private bool _showDetails = false;
+
+    public ReactiveCommand<Unit, Unit> SaveCommand { get; }
 
     public bool ShowDetails
     {
@@ -48,38 +54,42 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private string _descriptionField = "";
+    [Required]
     public string DescriptionField { get => _descriptionField;
         set
         {
-            _descriptionField = value;
+            this.RaiseAndSetIfChanged(ref _descriptionField, value);
             OnPropertyChanged(nameof(DescriptionField));
         } }
 
     private string _pathField = "";
+    [Required]
     public string PathField { get => _pathField;
     set
         {
-            _pathField = value;
+            this.RaiseAndSetIfChanged(ref _pathField, value);
             OnPropertyChanged(nameof(PathField));
         }
     }
 
     private double _minField = 0, _maxField = 0;
+    [Required]
     public double MinField
     {
         get => _minField;
         set
         {
-            _minField = value;
+            this.RaiseAndSetIfChanged(ref _minField, value);
             OnPropertyChanged(nameof(MinField));
         }
     }
+
     public double MaxField
     {
         get => _maxField;
         set
         {
-            _maxField = value;
+            this.RaiseAndSetIfChanged(ref _maxField, value);
             OnPropertyChanged(nameof(MaxField));
         }
     }
@@ -88,7 +98,7 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
     public int IntervalField { get => _intervalField;
     set
         {
-            _intervalField = value;
+            this.RaiseAndSetIfChanged(ref _intervalField, value);
             OnPropertyChanged(nameof(IntervalField));
         }
     }
@@ -160,9 +170,6 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
 
     private ObservableCollection<LocalSensor> _localSensors = new ObservableCollection<LocalSensor>
     {
-        //new LocalSensor("Temperatura", "temp.exe", -32, 100),
-        //new LocalSensor("Wilgotność", "higro.exe", 0, 100),
-        //new LocalSensor("Odległość", "dist.exe", 0, 400),
     };
 
     public ObservableCollection<LocalSensor> LocalSensors { get => _localSensors; 
@@ -204,8 +211,17 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         IntervalField = EditedSensor.Interval;
     }
 
+    private void SaveAction()
+    {
+        SwitchToSensorList(true);
+    }
+
     public MainViewModel()
     {
+        IObservable<bool> formOk = this.WhenAnyValue(
+            x => x.PathField, x => x.DescriptionField, x => x.MaxField, x => x.MinField, x => x.IntervalField, (PathField, DescriptionField, MaxField, MinField, IntervalField) =>
+                !string.IsNullOrWhiteSpace(DescriptionField) && !string.IsNullOrWhiteSpace(PathField));
+        SaveCommand = ReactiveCommand.Create(SaveAction, formOk);
 
         foreach (var sensor in LocalSensors)
         {
