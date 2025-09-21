@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Centrum_zarządzania.ViewModels;
 
 namespace Centrum_zarządzania.Models
 {
@@ -16,11 +17,6 @@ namespace Centrum_zarządzania.Models
         public Configuration(ObservableCollection<LocalSensor> list)
         {
             LocalSensorList = list;
-        }
-
-        public void SaveToFile()
-        {
-
         }
     }
 }

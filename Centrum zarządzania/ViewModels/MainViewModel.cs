@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Centrum_zarządzania.Models;
 using Centrum_zarządzania.Services;
 using ReactiveUI;
 
@@ -17,12 +16,13 @@ namespace Centrum_zarządzania.ViewModels;
 
 public class MainViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    public string Greeting => "Welcome to Avalonia!";
     public string MainTitle => "Status czujników";
 
     private Task UpdateTask;
 
     private SensorUpdater _updateHandler = new SensorUpdater();
+
+    private ReadingLocalSender _readingHandler = new ReadingLocalSender();
 
     private bool _showMain = true;
     private bool _showDetails = false;
@@ -134,7 +134,8 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         if(!NewSensor)
         {
             LocalSensors.Remove(_editedSensor);
-            _updateHandler.UnregisterSensor(_editedSensor);
+            _updateHandler.UnsubscribeSensor(_editedSensor);
+            _readingHandler.UnsubscribeSensor(_editedSensor);
             OnPropertyChanged("LocalSensors");
             Debug.WriteLine("Sensor deleted!");
             App.SaveConfig();
@@ -149,7 +150,8 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         {
             EditedSensor = new LocalSensor(DescriptionField, PathField, MinField, MaxField, IntervalField);
             LocalSensors.Add(EditedSensor);
-            _updateHandler.RegisterSensor(_editedSensor);
+            _updateHandler.SubscribeSensor(_editedSensor);
+            _readingHandler.SubscribeSensor(_editedSensor);
             NewSensor = false;
             Debug.WriteLine("Saved new sensor!");
         }
@@ -177,12 +179,14 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         { 
             foreach(var item in _localSensors)
             {
-                _updateHandler.UnregisterSensor(item);
+                _updateHandler.UnsubscribeSensor(item);
+                _readingHandler.UnsubscribeSensor(item);
             }
             _localSensors = value;
             foreach(var item in _localSensors)
             {
-                _updateHandler.RegisterSensor(item);
+                _updateHandler.SubscribeSensor(item);
+                _readingHandler.SubscribeSensor(item);
             }
         }
     }

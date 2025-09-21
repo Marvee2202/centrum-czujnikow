@@ -7,10 +7,20 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Centrum_zarządzania.ViewModels;
 
-namespace Centrum_zarządzania.Models
+namespace Centrum_zarządzania.ViewModels
 {
+    public class ReadingGeneratedArgs
+    {
+        public ReadingGeneratedArgs(string desc, double val) 
+        {
+            Name = desc;
+            Reading = val;
+        }
+        public string Name { get; }
+        public double Reading { get; }
+    }
+
     public class LocalSensor : Sensor
     {
         public event EventHandler IntervalReached;
@@ -20,7 +30,16 @@ namespace Centrum_zarządzania.Models
             IntervalReached?.Invoke(this, new EventArgs());
         }
 
-        public delegate void IntervalReachedEventHandler(object sender, EventArgs e);
+        //public delegate void IntervalReachedEventHandler(object sender, EventArgs e);
+
+        public event ReadingGeneratedEventHandler ReadingGenerated;
+
+        public delegate void ReadingGeneratedEventHandler(object sender, ReadingGeneratedArgs arg);
+
+        protected virtual void OnReadingGenerated(ReadingGeneratedArgs arg)
+        {
+            ReadingGenerated?.Invoke(this, arg);
+        }
 
         private string _path = "";
 
@@ -47,7 +66,7 @@ namespace Centrum_zarządzania.Models
                     OnIntervalReached(this, EventArgs.Empty);
                 });
                 if (!_ready) return;
-                System.Diagnostics.Process senseRead = System.Diagnostics.Process.Start(_path);
+                Process senseRead = Process.Start(_path);
                 senseRead.StartInfo.UseShellExecute = false;
                 senseRead.StartInfo.CreateNoWindow = true;
                 senseRead.StartInfo.RedirectStandardOutput = true;
@@ -59,6 +78,7 @@ namespace Centrum_zarządzania.Models
                 await senseRead.WaitForExitAsync(cancellationToken);
 
                 Value = Convert.ToDouble(senseRead.StandardOutput.ReadToEnd(), System.Globalization.CultureInfo.InvariantCulture);
+                OnReadingGenerated(new ReadingGeneratedArgs(Description, Value));
                 senseRead.Kill();
                 _ready = true;
             }

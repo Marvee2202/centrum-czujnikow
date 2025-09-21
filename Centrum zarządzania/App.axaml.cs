@@ -15,6 +15,8 @@ public partial class App : Application
 
     public static Configuration Config { get; set; }
 
+    public static SensorContext db { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -22,6 +24,9 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        db = new SensorContext();
+        db.Database.EnsureCreated();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             Main = new MainViewModel();
