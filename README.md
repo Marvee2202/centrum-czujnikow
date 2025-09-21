@@ -1,9 +1,9 @@
 # Spis treści
-+ [[#O projekcie]]
-+ [[#Instalacja]]
-+ [[#Korzystanie z aplikacji]]
-+ [[#TODO]]
-+ [[#Wykorzystane narzędzia]]
++ [O projekcie](#o-projekcie)
++ [Instalacja](#instalacja)
++ [Korzystanie z aplikacji](#korzystanie-z-aplikacji)
++ [TODO](#todo)
++ [Wykorzystane narzędzia](#wykorzystane-narzędzia)
 # O projekcie
 Aplikacja agreguje odczyty czujników, pozwalając na aktywne monitorowanie ich w jednym miejscu.
 
