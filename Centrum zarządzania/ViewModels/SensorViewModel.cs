@@ -25,11 +25,11 @@ namespace Centrum_zarządzania.ViewModels
         public bool triggersBelow = false;
     }
 
-    public class Sensor : INotifyPropertyChanged
+    public class SensorViewModel : INotifyPropertyChanged
     {
-        public Sensor() { }
+        public SensorViewModel() { }
 
-        public Sensor(string desc, double min, double max)
+        public SensorViewModel(string desc, double min, double max)
         {
             _description = desc;
             MinValue = min;

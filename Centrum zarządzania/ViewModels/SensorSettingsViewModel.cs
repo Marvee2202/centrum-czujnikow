@@ -12,7 +12,7 @@ namespace Centrum_zarządzania.ViewModels
         private string _header;
         public string Header { get { return _header; } set { _header = value; } }
 
-        public Sensor Reference { get; set; }
+        public SensorViewModel Reference { get; set; }
 
         private string _description;
         public string Description

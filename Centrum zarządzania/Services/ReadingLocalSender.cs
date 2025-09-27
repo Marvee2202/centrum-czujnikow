@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Centrum_zarządzania.Models;
 using Centrum_zarządzania.ViewModels;
@@ -11,21 +12,61 @@ namespace Centrum_zarządzania.Services
 {
     public class ReadingLocalSender
     {
-        public void SubscribeSensor(LocalSensor sensor)
+        private bool queueLocked = false;
+
+        public void SubscribeSensor(LocalSensor SensorViewModel)
         {
-            sensor.ReadingGenerated += c_ReadingGenerated;
+            SensorViewModel.ReadingGenerated += c_ReadingGenerated;
         }
 
-        public void UnsubscribeSensor(LocalSensor sensor)
+        public void UnsubscribeSensor(LocalSensor SensorViewModel)
         {
-            sensor.ReadingGenerated -= c_ReadingGenerated;
+            SensorViewModel.ReadingGenerated -= c_ReadingGenerated;
         }
 
         void c_ReadingGenerated(object sender, ReadingGeneratedArgs e)
         {
-            App.db.Add(new Reading(e.Name, e.Reading));
-            App.db.SaveChangesAsync();
-            Debug.WriteLine("Reading saved");
+            Reading r = new Reading(e.Name, e.Reading);
+            while (queueLocked)
+            {
+                Thread.Sleep(1);
+            }
+            _readingQueue.Add(r);
+        }
+
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+
+        private List<Reading> _readingQueue = new List<Reading>();
+
+        public ReadingLocalSender()
+        {
+            _cts = new CancellationTokenSource();
+            Task.Factory.StartNew(() => ProcessNewData());
+        }
+
+        ~ReadingLocalSender()
+        {
+            _cts.Cancel();
+        }
+
+        async void ProcessNewData()
+        {
+            CancellationToken token = _cts.Token;
+            while (!token.IsCancellationRequested)
+            {
+                int records = 0;
+                queueLocked = true;
+                foreach (Reading x in _readingQueue)
+                {
+                    records++;
+                    App.db.Add<Reading>(x);
+                }
+                _readingQueue.Clear();
+                queueLocked = false;
+                if(records > 0) await App.db.SaveChangesAsync();
+                Debug.WriteLine($"{records} Readings sent.");
+                Thread.Sleep(1000);
+            }
         }
     }
 }

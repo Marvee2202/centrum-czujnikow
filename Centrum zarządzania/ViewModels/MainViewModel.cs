@@ -113,12 +113,12 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         ShowMain = false;
     }
 
-    public void SwitchToSensorEdit(LocalSensor sensor)
+    public void SwitchToSensorEdit(LocalSensor SensorViewModel)
     {
         NewSensor = false;
-        EditedSensor = sensor;
+        EditedSensor = SensorViewModel;
         LoadSensor();
-        Debug.WriteLine("Loaded" + sensor.Path);
+        Debug.WriteLine("Loaded" + SensorViewModel.Path);
         ShowMain = false;
     }
 
@@ -137,7 +137,7 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
             _updateHandler.UnsubscribeSensor(_editedSensor);
             _readingHandler.UnsubscribeSensor(_editedSensor);
             OnPropertyChanged("LocalSensors");
-            Debug.WriteLine("Sensor deleted!");
+            Debug.WriteLine("SensorViewModel deleted!");
             App.SaveConfig();
         }
         ResetSettingsPage();
@@ -153,7 +153,7 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
             _updateHandler.SubscribeSensor(_editedSensor);
             _readingHandler.SubscribeSensor(_editedSensor);
             NewSensor = false;
-            Debug.WriteLine("Saved new sensor!");
+            Debug.WriteLine("Saved new SensorViewModel!");
         }
         else
         {
@@ -163,7 +163,7 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
                 EditedSensor.MaxValue = MaxField;
                 EditedSensor.MinValue = MinField;
                 EditedSensor.Interval = IntervalField;
-                Debug.WriteLine("Sensor edit saved!");
+                Debug.WriteLine("SensorViewModel edit saved!");
             }
         }
         OnPropertyChanged("LocalSensors");
@@ -191,7 +191,7 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<Sensor> SensorList { get; set; } = new ObservableCollection<Sensor>
+    public ObservableCollection<SensorViewModel> SensorList { get; set; } = new ObservableCollection<SensorViewModel>
     {
 
     };
@@ -227,9 +227,9 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
                 !string.IsNullOrWhiteSpace(DescriptionField) && !string.IsNullOrWhiteSpace(PathField));
         SaveCommand = ReactiveCommand.Create(SaveAction, formOk);
 
-        foreach (var sensor in LocalSensors)
+        foreach (var SensorViewModel in LocalSensors)
         {
-            SensorList.Add(sensor);
+            SensorList.Add(SensorViewModel);
         }
     }
 

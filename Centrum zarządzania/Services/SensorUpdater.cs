@@ -13,22 +13,22 @@ namespace Centrum_zarządzania.Services
 {
     public class SensorUpdater()
     {
-        public void SubscribeSensor(LocalSensor sensor)
+        public void SubscribeSensor(LocalSensor SensorViewModel)
         {
-            sensor.IntervalReached += c_IntervalReached;
-            sensor.Update();
+            SensorViewModel.IntervalReached += c_IntervalReached;
+            SensorViewModel.Update();
         }
 
-        public void UnsubscribeSensor(LocalSensor sensor)
+        public void UnsubscribeSensor(LocalSensor SensorViewModel)
         {
-            sensor.IntervalReached -= c_IntervalReached;
+            SensorViewModel.IntervalReached -= c_IntervalReached;
         }
 
         void c_IntervalReached(object sender, EventArgs e)
         {
-            if(sender is LocalSensor sensor)
+            if(sender is LocalSensor SensorViewModel)
             {
-                sensor.Update();
+                SensorViewModel.Update();
             }
         }
     }

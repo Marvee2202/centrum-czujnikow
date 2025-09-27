@@ -21,7 +21,7 @@ namespace Centrum_zarządzania.ViewModels
         public double Reading { get; }
     }
 
-    public class LocalSensor : Sensor
+    public class LocalSensor : SensorViewModel
     {
         public event EventHandler IntervalReached;
 

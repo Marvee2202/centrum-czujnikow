@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.Json;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -22,10 +23,15 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    private static Semaphore _dbAccess = new Semaphore(0, 1);
+
+    public static Semaphore DbAccess { get => _dbAccess; }
+
     public override void OnFrameworkInitializationCompleted()
     {
         db = new SensorContext();
         db.Database.EnsureCreated();
+        _dbAccess.Release();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -66,6 +72,11 @@ public partial class App : Application
         {
             Main.LocalSensors = Config.LocalSensorList;
         }
+    }
+
+    public static void LoadConnectionData()
+    {
+
     }
 
     public static void SaveConfig()
