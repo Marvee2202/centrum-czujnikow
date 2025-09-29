@@ -40,11 +40,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: main
+        release_name: Release main
         body: |
           Automatycznie zbudowana wersja.
-        draft: false
+        draft: true
         prerelease: false
     - name: Upload release asset
       uses: actions/upload-release-asset@v1
@@ -52,6 +52,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./path/to/asset.zip
-        asset_name: asset.zip
+        asset_path: centrum-czujnikow.zip
+        asset_name: centrum-czujnikow.zip
         asset_content_type: application/zip
