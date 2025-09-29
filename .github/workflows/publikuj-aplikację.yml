@@ -25,7 +25,8 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'  -c release -r linux-arm64 -o centrum-czujnikow --self-contained
+      run: cd /home/runner/work/centrum-czujnikow/centrum-czujnikow
+        dotnet publish 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'  -c release -r linux-arm64 -o centrum-czujnikow --self-contained
         zip centrum-czujnikow.zip centrum-czujnikow
     - name: Upload to release
       uses: actions/upload-artifact@v4
