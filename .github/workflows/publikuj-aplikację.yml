@@ -27,7 +27,7 @@ jobs:
     - name: Publish
       run: |
         dotnet publish 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'  -c release -r linux-arm64 -o centrum-czujnikow --self-contained
-        zip centrum-czujnikow.zip centrum-czujnikow
+        zip -r centrum-czujnikow.zip centrum-czujnikow
     - name: Upload to release
       uses: actions/upload-artifact@v4
       with:
