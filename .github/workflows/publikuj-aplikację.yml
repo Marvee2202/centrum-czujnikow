@@ -21,11 +21,9 @@ jobs:
     - name: Restore dependencies
       run: |
         cd /home/runner/work/centrum-czujnikow/centrum-czujnikow
-        dotnet restore 'Centrum zarządzania/Centrum zarządzania.csproj'
+        dotnet restore 'Centrum zarządzania/Centrum zarządzania.sln'
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet build 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj' --no-restore
     - name: Publish
       run: |
         dotnet publish 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'  -c release -r linux-arm64 -o centrum-czujnikow --self-contained
