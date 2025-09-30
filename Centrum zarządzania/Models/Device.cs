@@ -8,8 +8,12 @@ namespace Centrum_zarządzania.Models
 {
     public class Device
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public ICollection<Sensor> Sensors { get; } = new List<Sensor>();
+
+        public Device(string name)
+        {
+            Name = name;
+        }
     }
 }

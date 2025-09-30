@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using Avalonia;
@@ -7,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using Centrum_zarządzania.Models;
 using Centrum_zarządzania.ViewModels;
 using Centrum_zarządzania.Views;
+using Microsoft.EntityFrameworkCore;
 
 namespace Centrum_zarządzania;
 
@@ -18,29 +20,50 @@ public partial class App : Application
 
     public static SensorContext db { get; private set; }
 
+    public static Device? ThisDevice { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
     }
 
-    private static Semaphore _dbAccess = new Semaphore(0, 1);
-
-    public static Semaphore DbAccess { get => _dbAccess; }
-
     public override void OnFrameworkInitializationCompleted()
     {
-        db = new SensorContext();
-        db.Database.EnsureCreated();
-        _dbAccess.Release();
+        DbConnectionData dbconfig = new DbConnectionData();
+        if (LoadDbData(out dbconfig))
+        {
+            db = new SensorContext(dbconfig);
+            db.Database.EnsureCreated();
+        }
+
+        else
+        {
+            dbconfig = new DbConnectionData();
+            SaveDbData(dbconfig);
+        }
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             Main = new MainViewModel();
-            LoadConfig();
-            desktop.MainWindow = new MainWindow
+            ThisDevice = db.devices.Include(device => device.Sensors).Where(device => device.Name == dbconfig.device).First();
+            if(ThisDevice != null)
             {
-                DataContext = Main
-            };
+                foreach (var sensor in ThisDevice.Sensors)
+                {
+                    Main.AddSensor(new LocalSensor(sensor));
+                }
+            }
+            else
+            {
+                ThisDevice = new Device(dbconfig.device);
+                db.Add(ThisDevice);
+                db.SaveChanges();
+            }
+                //LoadConfig();
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = Main
+                };
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
@@ -74,11 +97,6 @@ public partial class App : Application
         }
     }
 
-    public static void LoadConnectionData()
-    {
-
-    }
-
     public static void SaveConfig()
     {
         Config.LocalSensorList = Main.LocalSensors;
@@ -90,6 +108,37 @@ public partial class App : Application
 
         string configJson = JsonSerializer.Serialize(Config, options);
         File.WriteAllText("config.json", configJson);
+    }
+
+    public static bool LoadDbData(out DbConnectionData data)
+    {
+        try
+        {
+            var options = new JsonSerializerOptions()
+            {
+                IncludeFields = true
+            };
+
+            data = JsonSerializer.Deserialize<DbConnectionData>(File.ReadAllText("dbconfig.json"), options);
+            return data != null;
+        }
+        catch (FileNotFoundException e)
+        {
+            data = new DbConnectionData();
+            SaveDbData(data);
+            return false;
+        }
+    }
+
+    public static void SaveDbData(DbConnectionData data)
+    {
+        var options = new JsonSerializerOptions()
+        {
+            IncludeFields = true
+        };
+
+        string configJson = JsonSerializer.Serialize(data, options);
+        File.WriteAllText("dbconfig.json", configJson);
     }
 
 }

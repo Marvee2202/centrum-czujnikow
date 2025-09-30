@@ -26,7 +26,7 @@ namespace Centrum_zarządzania.Services
 
         void c_ReadingGenerated(object sender, ReadingGeneratedArgs e)
         {
-            Reading r = new Reading(e.Name, e.Reading);
+            Reading r = new Reading(e.Sensor, e.Reading);
             while (queueLocked)
             {
                 Thread.Sleep(1);

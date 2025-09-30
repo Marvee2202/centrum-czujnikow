@@ -13,20 +13,19 @@ namespace Centrum_zarządzania.Models
     public class SensorContext : DbContext
     {
         public DbSet<Reading> readings { get; set; }
-        //public DbSet<SensorViewModel> sensors { get; set; }
-        public string DbPath { get; }
+        public DbSet<Sensor> sensors { get; set; }
+        public DbSet<Device> devices { get; set; } 
 
-        public SensorContext()
+        private string _connectionString;
+
+        public SensorContext(DbConnectionData connectionData)
         {
-            var folder = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(folder);
-            DbPath = System.IO.Path.Join(path, "readings.db");
-            Debug.WriteLine(DbPath);
+            _connectionString = connectionData.GetConnectionString();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySQL(new DbConnectionData().GetConnectionString());
+            optionsBuilder.UseMySQL(_connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +36,19 @@ namespace Centrum_zarządzania.Models
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Value).IsRequired();
+                entity.HasOne(e => e.Sensor).WithMany(s => s.Readings);
+            });
+
+            modelBuilder.Entity<Sensor>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired();
+                entity.HasOne(e => e.Device).WithMany(d => d.Sensors);
+            });
+
+            modelBuilder.Entity<Device>(entity =>
+            {
+                entity.HasKey(e => e.Name);
             });
         }
     }

@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Centrum_zarządzania.Models;
 using Centrum_zarządzania.Services;
 using ReactiveUI;
 
@@ -144,14 +145,33 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
         ShowMain = true;
     }
 
-    private void SaveSettings()
+    public void AddSensor(LocalSensor sensor)
+    {
+        LocalSensors.Add(sensor);
+        _updateHandler.SubscribeSensor(sensor);
+        _readingHandler.SubscribeSensor(sensor);
+    }
+
+    private async void SaveSettings()
     {
         if (NewSensor)
         {
             EditedSensor = new LocalSensor(DescriptionField, PathField, MinField, MaxField, IntervalField);
+            Sensor Model = new Sensor()
+            {
+                Device = App.ThisDevice,
+                DeviceName = App.ThisDevice.Name,
+                Name = DescriptionField,
+                ConnectionData = PathField,
+                LowThreshold = MinField,
+                HighThreshold = MaxField,
+                Interval = IntervalField,
+            };
+            App.db.Add(Model);
             LocalSensors.Add(EditedSensor);
             _updateHandler.SubscribeSensor(_editedSensor);
             _readingHandler.SubscribeSensor(_editedSensor);
+            await App.db.SaveChangesAsync();
             NewSensor = false;
             Debug.WriteLine("Saved new SensorViewModel!");
         }
@@ -163,11 +183,18 @@ public class MainViewModel : ViewModelBase, INotifyPropertyChanged
                 EditedSensor.MaxValue = MaxField;
                 EditedSensor.MinValue = MinField;
                 EditedSensor.Interval = IntervalField;
+                App.db.Update(EditedSensor.modelRef);
+                EditedSensor.modelRef.Name = DescriptionField;
+                EditedSensor.modelRef.ConnectionData = PathField;
+                EditedSensor.modelRef.LowThreshold = MinField;
+                EditedSensor.modelRef.HighThreshold = MaxField;
+                EditedSensor.modelRef.Interval = IntervalField;
+                await App.db.SaveChangesAsync();
                 Debug.WriteLine("SensorViewModel edit saved!");
             }
         }
         OnPropertyChanged("LocalSensors");
-        App.SaveConfig();
+        //App.SaveConfig();
     }
 
     private ObservableCollection<LocalSensor> _localSensors = new ObservableCollection<LocalSensor>

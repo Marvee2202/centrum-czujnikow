@@ -7,17 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Centrum_zarządzania.Models;
 
 namespace Centrum_zarządzania.ViewModels
 {
     public class ReadingGeneratedArgs
     {
-        public ReadingGeneratedArgs(string desc, double val) 
+        public ReadingGeneratedArgs(Sensor sensor, double val) 
         {
-            Name = desc;
+            Sensor = sensor;
             Reading = val;
         }
-        public string Name { get; }
+        public Sensor Sensor { get; }
         public double Reading { get; }
     }
 
@@ -44,6 +45,8 @@ namespace Centrum_zarządzania.ViewModels
         private string _path = "";
 
         public string Path { get => _path; set { _path = value; } }
+
+        public Sensor modelRef { get; set; }
 
         private int _interval = 100;
         public int Interval { get => _interval; set { _interval = value; OnPropertyChanged("Delay"); } }
@@ -78,7 +81,7 @@ namespace Centrum_zarządzania.ViewModels
                 await senseRead.WaitForExitAsync(cancellationToken);
 
                 Value = Convert.ToDouble(senseRead.StandardOutput.ReadToEnd(), System.Globalization.CultureInfo.InvariantCulture);
-                OnReadingGenerated(new ReadingGeneratedArgs(Description, Value));
+                OnReadingGenerated(new ReadingGeneratedArgs(modelRef, Value));
                 senseRead.Kill();
                 _ready = true;
             }
@@ -94,6 +97,13 @@ namespace Centrum_zarządzania.ViewModels
         {
             _path = path;
             _interval = interval;
+        }
+
+        public LocalSensor(Sensor s) : base(s.Name, s.LowThreshold, s.HighThreshold)
+        {
+            _path = s.ConnectionData;
+            _interval = s.Interval;
+            modelRef = s;
         }
 
         public LocalSensor() : base()

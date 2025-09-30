@@ -9,10 +9,11 @@ namespace Centrum_zarządzania
 {
     public class DbConnectionData
     {
+        public string device = "DefaultDevice";
         public string server = "192.168.0.20";
         public string database = "czujniki";
         public string user = "czujnik";
-        private string _password = "kontroler123";
+        public string _password = "kontroler123";
         
         public string GetConnectionString()
         {
