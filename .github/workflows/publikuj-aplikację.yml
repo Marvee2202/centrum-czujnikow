@@ -1,0 +1,63 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: |
+        cd /home/runner/work/centrum-czujnikow/centrum-czujnikow
+        dotnet restore 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'
+    - name: Build
+      run: dotnet build 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj' --no-restore
+    - name: Publish
+      run: |
+        dotnet publish 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'  -c release -r linux-arm64 -o centrum-czujnikow --self-contained
+        cp sample/dbconfig.json centrum-czujnikow/dbconfig.json
+        zip -r centrum-czujnikow.zip centrum-czujnikow
+    - name: Upload to release
+      uses: actions/upload-artifact@v4
+      with:
+        name: zip z aplikacją
+        path: centrum-czujnikow.zip
+      if: ${{ always() }}
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: main
+        release_name: Release main
+        body: |
+          Automatycznie zbudowana wersja.
+        draft: true
+        prerelease: false
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: centrum-czujnikow.zip
+        asset_name: centrum-czujnikow.zip
+        asset_content_type: application/zip
+    - uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
