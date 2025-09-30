@@ -36,13 +36,13 @@ jobs:
     - name: Upload centrum to release
       uses: actions/upload-artifact@v4
       with:
-        name: zip z aplikacją
+        name: zip z aplikacją centrum
         path: centrum-czujnikow.zip
       if: ${{ always() }}
     - name: Upload czytnik to release
       uses: actions/upload-artifact@v4
       with:
-        name: zip z aplikacją
+        name: zip z aplikacją czytnika
         path: czytnik-czujnikow.zip
       if: ${{ always() }}
     - name: Create release
