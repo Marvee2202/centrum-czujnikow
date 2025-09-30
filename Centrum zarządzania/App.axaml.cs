@@ -45,9 +45,10 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             Main = new MainViewModel();
-            ThisDevice = db.devices.Include(device => device.Sensors).Where(device => device.Name == dbconfig.device).First();
-            if(ThisDevice != null)
+            if (db.devices.Include(device => device.Sensors).Where(device => device.Name == dbconfig.device).Any())
             {
+                ThisDevice = db.devices.Include(device => device.Sensors).Where(device => device.Name == dbconfig.device).Single();
+
                 foreach (var sensor in ThisDevice.Sensors)
                 {
                     Main.AddSensor(new LocalSensor(sensor));
