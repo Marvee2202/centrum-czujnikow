@@ -22,18 +22,28 @@ jobs:
       run: |
         cd /home/runner/work/centrum-czujnikow/centrum-czujnikow
         dotnet restore 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'
+        dotnet restore 'Czytnik czujników/Czytnik czujników/Czytnik Czujników.csproj'
     - name: Build
       run: dotnet build 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj' --no-restore
     - name: Publish
       run: |
-        dotnet publish 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj'  -c release -r linux-arm64 -o centrum-czujnikow --self-contained
+        dotnet publish 'Centrum zarządzania.Desktop/Centrum zarządzania.Desktop.csproj' -c release -r linux-arm64 -o centrum-czujnikow --self-contained
+        dotnet publish 'Czytnik czujników/Czytnik czujników/Czytnik Czujników.csproj' -c release -r win-x64 -o czytnik-czujnikow --self-contained
         cp sample/dbconfig.json centrum-czujnikow/dbconfig.json
+        cp sample/client/dbconfig.json centrum-czujnikow/dbconfig.json
         zip -r centrum-czujnikow.zip centrum-czujnikow
+        zip -r czytnik-czujnikow.zip czytnik-czujnikow
     - name: Upload to release
       uses: actions/upload-artifact@v4
       with:
         name: zip z aplikacją
         path: centrum-czujnikow.zip
+      if: ${{ always() }}
+    - name: Upload to release
+      uses: actions/upload-artifact@v4
+      with:
+        name: zip z aplikacją
+        path: czytnik-czujnikow.zip
       if: ${{ always() }}
     - name: Create release
       id: create_release
@@ -47,7 +57,7 @@ jobs:
           Automatycznie zbudowana wersja.
         draft: true
         prerelease: false
-    - name: Upload release asset
+    - name: Upload release asset 1
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,6 +65,15 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: centrum-czujnikow.zip
         asset_name: centrum-czujnikow.zip
+        asset_content_type: application/zip
+    - name: Upload release asset 2
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: czytnik-czujnikow.zip
+        asset_name: czytnik-czujnikow.zip
         asset_content_type: application/zip
     - uses: eregon/publish-release@v1
       env:

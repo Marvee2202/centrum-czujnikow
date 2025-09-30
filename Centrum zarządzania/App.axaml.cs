@@ -29,7 +29,7 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        DbConnectionData dbconfig = new DbConnectionData();
+        DbConnectionData dbconfig;
         if (LoadDbData(out dbconfig))
         {
             db = new SensorContext(dbconfig);
